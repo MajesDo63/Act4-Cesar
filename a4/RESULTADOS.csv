@@ -1,0 +1,11 @@
+﻿version,archivo,hallazgos,referencia_ruff_v2,omisiones,correcto_en_alcance,clasificacion,latencia_ms
+v1,usuarios.py,3,3,0,False,inconsistencia,7134.3
+v1,limites.py,0,0,0,False,inconsistencia,11603.9
+v1,tokens.py,0,1,1,False,"inconsistencia, omision",12423.8
+v1,reportes.py,0,2,2,False,"inconsistencia, omision",38060.3
+v1,transferencias.py,2,2,0,False,inconsistencia,73551.8
+v2,usuarios.py,3,3,0,True,sin_error_en_alcance,11418.8
+v2,limites.py,0,0,0,True,sin_error_en_alcance,11816.6
+v2,tokens.py,1,1,0,True,sin_error_en_alcance,12146.1
+v2,reportes.py,2,2,0,True,sin_error_en_alcance,11705.2
+v2,transferencias.py,2,2,0,True,sin_error_en_alcance,12280.7

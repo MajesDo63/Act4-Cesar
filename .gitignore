@@ -1,0 +1,35 @@
+.env
+bitacora/usuarios.db*
+bitacora/a3/privado/
+tmp/
+__pycache__/
+*.pyc
+.pytest_cache/
+bitacora/emb_*.npy
+bitacora/**/emb_*.npy
+.venv/
+.DS_Store
+*.egg-info/
+bitacora/demo_dictamen/
+
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+
+# Diagnosticos privados del control de la interfaz; no son evidencias de entrega.
+bitacora/a3/**/swagger_diagnostico.txt
+bitacora/a3/**/swagger_ajuste_error.txt
+bitacora/a3/**/captura_error.txt
+
+# Dependencias locales instaladas por pip; no forman parte del producto.
+herramientas_a3/
+herramientas_pruebas/
+bitacora/a4/sesion_interfaz/
+bitacora/a4/informes/
+*.pid
+bitacora/a4/revision_video/
+bitacora/a4/imagenes_recibidas/
+entrega/Borrador_*

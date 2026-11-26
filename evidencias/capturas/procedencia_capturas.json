@@ -1,0 +1,38 @@
+[
+  {
+    "bytes": 257649,
+    "origen": "C:\\Users\\cesar\\OneDrive\\Imágenes\\Screenshots\\Captura de pantalla 2026-11-26 164454.png",
+    "sha256": "bde6c0aeb80682b71ecbb73e8300891738aaabb312fb5df171b986206ddbf6ec",
+    "archivo": "01_revision_usuarios.png"
+  },
+  {
+    "bytes": 122633,
+    "origen": "C:\\Users\\cesar\\OneDrive\\Imágenes\\Screenshots\\Captura de pantalla 2026-11-26 165121.png",
+    "sha256": "80f45b26372845bee8a70e3b7c00da1fd920dc2b7e717b0295af7c82993b36e3",
+    "archivo": "02_limites_sin_hallazgos.png"
+  },
+  {
+    "bytes": 76944,
+    "origen": "C:\\Users\\cesar\\OneDrive\\Imágenes\\Screenshots\\Captura de pantalla 2026-11-26 165318.png",
+    "sha256": "f78a91b83e67d0fe89753208b307b675640c867a2f974bf6c5ea1a3da4e64369",
+    "archivo": "03_confirmacion_pendiente.png"
+  },
+  {
+    "bytes": 80907,
+    "origen": "C:\\Users\\cesar\\OneDrive\\Imágenes\\Screenshots\\Captura de pantalla 2026-11-26 165429.png",
+    "sha256": "80687a5d03cd3239630e69370690b39a882d896d73fd3ae0a8e67115d053db18",
+    "archivo": "04_confirmacion_rechazada.png"
+  },
+  {
+    "bytes": 102314,
+    "origen": "C:\\Users\\cesar\\OneDrive\\Imágenes\\Screenshots\\Captura de pantalla 2026-11-26 165544.png",
+    "sha256": "9cea2a08ab925fb74153da9ad54fca64a309bb0dd1b4e741f73c3d9b0f8de7d7",
+    "archivo": "05_fallo_herramienta.png"
+  },
+  {
+    "bytes": 10922,
+    "origen": "C:\\Users\\cesar\\OneDrive\\Imágenes\\Screenshots\\Captura de pantalla 2026-11-26 165720.png",
+    "sha256": "11264e6524675030bf09307bd2d391f16992669f8e0d7fe8e934ee2f3d5f03b5",
+    "archivo": "06_pruebas_powershell.png"
+  }
+]

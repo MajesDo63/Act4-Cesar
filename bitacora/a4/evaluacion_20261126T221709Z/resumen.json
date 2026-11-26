@@ -1,0 +1,184 @@
+[
+  {
+    "version": "v1",
+    "archivo": "usuarios.py",
+    "metricas": {
+      "clasificacion": [
+        "inconsistencia"
+      ],
+      "hallazgos_detectados": 3,
+      "hallazgos_referencia_ruff_v2": 3,
+      "omisiones_en_alcance": 0,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": false
+    },
+    "latencia_ms": 7134.3
+  },
+  {
+    "version": "v1",
+    "archivo": "limites.py",
+    "metricas": {
+      "clasificacion": [
+        "inconsistencia"
+      ],
+      "hallazgos_detectados": 0,
+      "hallazgos_referencia_ruff_v2": 0,
+      "omisiones_en_alcance": 0,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": false
+    },
+    "latencia_ms": 11603.9
+  },
+  {
+    "version": "v1",
+    "archivo": "tokens.py",
+    "metricas": {
+      "clasificacion": [
+        "inconsistencia",
+        "omision"
+      ],
+      "hallazgos_detectados": 0,
+      "hallazgos_referencia_ruff_v2": 1,
+      "omisiones_en_alcance": 1,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": false
+    },
+    "latencia_ms": 12423.8
+  },
+  {
+    "version": "v1",
+    "archivo": "reportes.py",
+    "metricas": {
+      "clasificacion": [
+        "inconsistencia",
+        "omision"
+      ],
+      "hallazgos_detectados": 0,
+      "hallazgos_referencia_ruff_v2": 2,
+      "omisiones_en_alcance": 2,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": false
+    },
+    "latencia_ms": 38060.3
+  },
+  {
+    "version": "v1",
+    "archivo": "transferencias.py",
+    "metricas": {
+      "clasificacion": [
+        "inconsistencia"
+      ],
+      "hallazgos_detectados": 2,
+      "hallazgos_referencia_ruff_v2": 2,
+      "omisiones_en_alcance": 0,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": false
+    },
+    "latencia_ms": 73551.8
+  },
+  {
+    "version": "v2",
+    "archivo": "usuarios.py",
+    "metricas": {
+      "clasificacion": [
+        "sin_error_en_alcance"
+      ],
+      "hallazgos_detectados": 3,
+      "hallazgos_referencia_ruff_v2": 3,
+      "omisiones_en_alcance": 0,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": true
+    },
+    "latencia_ms": 11418.8
+  },
+  {
+    "version": "v2",
+    "archivo": "limites.py",
+    "metricas": {
+      "clasificacion": [
+        "sin_error_en_alcance"
+      ],
+      "hallazgos_detectados": 0,
+      "hallazgos_referencia_ruff_v2": 0,
+      "omisiones_en_alcance": 0,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": true
+    },
+    "latencia_ms": 11816.6
+  },
+  {
+    "version": "v2",
+    "archivo": "tokens.py",
+    "metricas": {
+      "clasificacion": [
+        "sin_error_en_alcance"
+      ],
+      "hallazgos_detectados": 1,
+      "hallazgos_referencia_ruff_v2": 1,
+      "omisiones_en_alcance": 0,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": true
+    },
+    "latencia_ms": 12146.1
+  },
+  {
+    "version": "v2",
+    "archivo": "reportes.py",
+    "metricas": {
+      "clasificacion": [
+        "sin_error_en_alcance"
+      ],
+      "hallazgos_detectados": 2,
+      "hallazgos_referencia_ruff_v2": 2,
+      "omisiones_en_alcance": 0,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": true
+    },
+    "latencia_ms": 11705.2
+  },
+  {
+    "version": "v2",
+    "archivo": "transferencias.py",
+    "metricas": {
+      "clasificacion": [
+        "sin_error_en_alcance"
+      ],
+      "hallazgos_detectados": 2,
+      "hallazgos_referencia_ruff_v2": 2,
+      "omisiones_en_alcance": 0,
+      "estados": [
+        "ejecutada",
+        "respuesta"
+      ],
+      "correcto_en_alcance": true
+    },
+    "latencia_ms": 12280.7
+  }
+]

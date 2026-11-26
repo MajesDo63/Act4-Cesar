@@ -1,0 +1,16 @@
+{
+  "fecha_utc": "2026-11-26T22:17:09.818533+00:00",
+  "directorio": "C:\\Users\\cesar\\OneDrive\\Documentos\\ChatGPT\\Estudiar\\actividad4_cesar",
+  "interprete": "C:\\Users\\cesar\\OneDrive\\Documentos\\ChatGPT\\Estudiar\\actividad4_cesar\\.venv\\Scripts\\python.exe",
+  "sistema": "Windows-11-10.0.26200-SP0",
+  "comando": "guia/evaluar_a4.py",
+  "proveedor": "gemini",
+  "modelo": "gemini-3.1-flash-lite",
+  "casos": [
+    "usuarios.py",
+    "limites.py",
+    "tokens.py",
+    "reportes.py",
+    "transferencias.py"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "aprobadas": 109,
+  "omitidas": 0,
+  "comando": [
+    "C:\\Users\\cesar\\OneDrive\\Documentos\\ChatGPT\\Estudiar\\actividad4_cesar\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "tests",
+    "-q",
+    "--junitxml=C:\\Users\\cesar\\OneDrive\\Documentos\\ChatGPT\\Estudiar\\actividad4_cesar\\bitacora\\a4\\evaluacion_20261126T221709Z\\pytest.xml"
+  ]
+}

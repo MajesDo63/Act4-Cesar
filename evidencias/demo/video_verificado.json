@@ -1,0 +1,15 @@
+{
+  "fuente": "Grabacion directa de la interfaz realizada por Cesar Eduardo Valdez Pinto",
+  "duracion_original_s": 132.94,
+  "duracion_final_s": 132.94,
+  "bytes_original": 243765847,
+  "bytes_final": 7604150,
+  "sha256_original": "f8f6474bfe0181993ae0500c36c4438f004e47ab7cc4afd83c067c320c579c70",
+  "sha256_final": "de48ca3e7a726c2e6e37771389e2e46413bb9305e10e4110245d1b7acd67902c",
+  "compresion_para_distribucion": true,
+  "recortes": false,
+  "rotulos_anadidos": false,
+  "presentacion_anadida": false,
+  "cambio_de_velocidad": false,
+  "resolucion_y_pista_de_audio": "Conservadas"
+}
