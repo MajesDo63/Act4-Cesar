@@ -31,3 +31,9 @@ Compruebo el resultado de las pruebas, las diferencias entre v1 y v2, mis captur
 Tomé las seis capturas originales en mi computadora: revisión de usuarios.py, caso limites.py, confirmación pendiente, rechazo, archivo inexistente y pytest. Se conservaron sus bytes y huellas. No incluí la imagen del acceso con la contraseña visible.
 
 Grabé la interfaz sin narración. Elegí utilizar mi propia grabación, sin rótulos ni presentación añadidos. Conservé el archivo original y mostré los pasos directamente en la aplicación.
+
+## Corrección de interfaz, trazabilidad y evaluación
+
+Integré Mi variante y Agente en `app/cliente_api.py`: el primer modo utiliza el endpoint de la A3 y el segundo las herramientas de la A4. El mensaje de control de un fallo se distingue de una revisión aprobada. Añadí pruebas de interacción de Streamlit con HTTP simulado.
+
+Con asistencia de ChatGPT revisé el código y el corpus para anotar 14 problemas, independientemente de ejecutar Ruff. La referencia se elaboró después de la ronda original y no es ciega ni exhaustiva. Reanalicé las diez respuestas reales guardadas: el perfil final detecta ocho problemas y deja seis sin cubrir. Separé estas omisiones de las inconsistencias del contrato de respuesta y construí la matriz regla → análisis → artefacto → hallazgo → validador. La grabación y las seis capturas originales se conservaron.

@@ -15,9 +15,17 @@ def main():
     assert json.loads((carpeta/"estado.json").read_text(encoding="utf-8"))["estado"]=="completo", "La evaluacion esta incompleta"
     huellas=json.loads((carpeta/"huellas.json").read_text(encoding="utf-8"))
     for nombre,huella in huellas.items():
-        assert hashlib.sha256((RAIZ/nombre).read_bytes()).hexdigest()==huella, "Cambio el codigo medido: "+nombre
+        if nombre not in ('app/cliente_api.py','app/interfaz_a4.py'):
+            assert hashlib.sha256((RAIZ/nombre).read_bytes()).hexdigest()==huella, "Cambio el motor o los datos medidos: "+nombre
     pruebas=ET.parse(carpeta/"pytest.xml").findall(".//testcase")
     assert len(pruebas)==109 and all(x.find("failure") is None and x.find("error") is None and x.find("skipped") is None for x in pruebas)
+    correccion_dir=RAIZ/(RAIZ/'bitacora/a4/ultima_correccion.txt').read_text(encoding='utf-8').strip()
+    correccion=json.loads((correccion_dir/'validacion.json').read_text(encoding='utf-8'))
+    assert correccion['estado']=='completo' and correccion['aprobadas']==120 and correccion['omitidas']==0
+    for nombre,huella in correccion['huellas_actuales'].items():
+        assert hashlib.sha256((RAIZ/nombre).read_bytes()).hexdigest()==huella,'Cambio una fuente de la correccion: '+nombre
+    actuales=ET.parse(correccion_dir/'pytest.xml').findall('.//testcase')
+    assert len(actuales)==120 and all(c.find('failure') is None and c.find('error') is None and c.find('skipped') is None for c in actuales)
     informe=json.loads((RAIZ/"entrega/informe_estado.json").read_text(encoding="utf-8"))
     assert informe["borrador"] is False and informe["paginas_pdf"]==7, "Falta cerrar el informe final"
     pdf=RAIZ/"entrega"/informe["pdf"]
@@ -49,7 +57,7 @@ def main():
         assert len(b)<100_000_000, "Archivo demasiado grande: "+ruta
         assert all(s not in b for s in secretos), "Credencial local detectada: "+ruta
         archivos+=1
-    print(f"ENTREGA A4 COMPROBADA: {archivos} archivos; 109 pruebas; 5 entradas finales; 6 capturas; PDF 7 paginas; demo {video['duracion_final_s']:.2f} s; credenciales excluidas.")
+    print(f"ENTREGA A4 COMPROBADA: {archivos} archivos; 120 pruebas actuales; Gemini original conservado; referencia y matriz; PDF 7 paginas; demo {video['duracion_final_s']:.2f} s; credenciales excluidas.")
 
 
 if __name__=="__main__":

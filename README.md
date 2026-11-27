@@ -13,7 +13,7 @@ Repositorio de esta actividad: https://github.com/MajesDo63/Act4-Cesar
 | Validador | `src/finnorte/validador_a4.py` | SEC, fuente, línea, evidencia, huella y respuesta respaldada. |
 | Confirmaciones | `src/finnorte/agente_servicio.py` | Acción exacta, usuario, vigencia, rechazo y un solo uso. |
 | API | `api/producto.py` | Token de A3, errores `problem+json` y endpoints del agente. |
-| Interfaz | `app/interfaz_a4.py` | Acceso, revisión, fuentes, validador, bitácora y decisión. |
+| Interfaz | `app/cliente_api.py` | Modos Mi variante y Agente; acceso, fuentes, validación y confirmación. |
 | Evaluación | `guia/evaluar_a4.py` | Las mismas cinco entradas en v1 y v2; conserva prompts y respuestas reales. |
 | Evidencias | `bitacora/a4/` y `evidencias/` | Registros de ejecución y archivos originales de las capturas y demo. |
 
@@ -38,6 +38,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File '.\guia\ABRIR_A4.ps1'
 
 La interfaz se abre en **http://127.0.0.1:8504** y la documentación de la API en **http://127.0.0.1:8004/docs**. Creo una cuenta de prueba e inicio sesión en la interfaz. El token se conserva en la sesión y no se muestra.
 
+En el selector lateral, **Mi variante** envía el código a `/v1/revisor`, el endpoint de la A3, y muestra el artefacto, las fuentes y los controles del flujo. **Agente** envía la tarea a `/v1/agente` y presenta las herramientas y la confirmación del informe. `interfaz_a4.py` conserva una entrada compatible hacia esta misma interfaz.
+
 Si el proveedor interrumpe la evaluación, conservo los resultados terminados y reanudo con:
 
 ```powershell
@@ -45,6 +47,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File '.\guia\VALIDAR_A4.ps1' -Con
 ```
 
 La reanudación verifica las huellas del código. Si cambio el código, inicio una ronda nueva.
+
+Para validar la corrección de la interfaz y reanalizar la ronda original con la referencia del código:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File '.\guia\VALIDAR_CORRECCION_A4.ps1'
+```
+
+Esta comprobación conserva los diez registros originales de Gemini. Comprueba que el motor, la API, los prompts, el corpus y las entradas de esa ronda mantienen sus bytes; valida por separado la interfaz corregida y las pruebas nuevas. La referencia anotada es posterior a la ronda: no se presenta como una evaluación ciega.
 
 Para ejecutar solo las pruebas, sin consultar Gemini:
 
@@ -61,6 +71,8 @@ Ruff se invoca con argumentos fijos, `shell=False`, `--isolated`, sin caché ni 
 La versión final utiliza S311, S324, S608, S301, S307, S602 y S506. Las relacioné con SEC-02, SEC-06 y SEC-09 del corpus. No cubren todas las políticas SEC: por ejemplo, `cuentas_api.py` requiere una revisión de autorización que estas reglas no realizan. Cero hallazgos significa cero coincidencias dentro de este alcance.
 
 El validador comprueba referencias y exige que la respuesta coincida con el resumen autorizado por la herramienta. No es una demostración semántica de seguridad ni sustituye una auditoría. Un archivo inexistente produce un paso fallido y detiene la revisión.
+
+La inspección del código y las políticas documenta 14 problemas en las cinco entradas: v1 detecta 5 y v2 detecta 8. Los seis restantes son límites de cobertura de Ruff, aunque el contrato de las cinco respuestas v2 apruebe. La matriz `a4/TRAZABILIDAD.md` enlaza regla, análisis, artefacto, hallazgo y validador. Los resultados independientes están en `a4/RESULTADOS_INDEPENDIENTES.csv`; los registros automáticos originales permanecen intactos.
 
 `guardar_informe` es sensible: requiere que esa misma solicitud haya analizado la misma ruta y huella. Antes de guardar se verifica otra vez la huella. La confirmación dura diez minutos, pertenece al usuario y se consume una sola vez. Rechazarla no crea el informe ni su directorio. Aprobarla permite crear un archivo nuevo; nunca reemplaza uno existente.
 

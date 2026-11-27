@@ -1,5 +1,6 @@
 """Prepara un ZIP del commit revisado y el comando de publicacion para PowerShell."""
 import hashlib
+import argparse
 import json
 from pathlib import Path
 import subprocess
@@ -8,6 +9,9 @@ raiz=Path(__file__).resolve().parents[1]
 git=Path("C:/Program Files/Git/cmd/git.exe")
 salida=raiz.parent/"output/actividad4_entrega"
 salida.mkdir(parents=True,exist_ok=True)
+parser=argparse.ArgumentParser()
+parser.add_argument('--actualizar',action='store_true')
+opciones=parser.parse_args()
 
 
 def ejecutar(*args):
@@ -55,11 +59,31 @@ $registroA4=@{repositorio=$remotoA4;commit=$commitEsperadoA4;main_verificado=$tr
 Write-Output 'PUBLICACION COMPLETA Y VERIFICADA: https://github.com/MajesDo63/Act4-Cesar/tree/a4-MajesDo63'
 '''
 script=plantilla.replace("__REPO__",str(raiz)).replace("__GIT__",str(git)).replace("__COMMIT__",commit)
-(salida/"PUBLICAR_ACT4.ps1").write_text(script,encoding="utf-8-sig")
+nombre_script='PUBLICAR_ACT4.ps1'
+if opciones.actualizar:
+    base=json.loads((salida/'revision_github_final.json').read_text(encoding='utf-8'))
+    base_commit=base['commit'];base_tag=base['tag_object_sha']
+    previo=r'''$previasA4=Ejecutar-GitA4 -Argumentos @('ls-remote','origin','refs/heads/main','refs/tags/a4-MajesDo63','refs/tags/a4-MajesDo63^{}')
+$estadoPrevioA4=@{}
+foreach($lineaA4 in $previasA4){$camposA4=$lineaA4 -split '\s+'; if($camposA4.Count -ge 2){$estadoPrevioA4[$camposA4[1]]=$camposA4[0]}}
+$publicarA4=$true
+if($estadoPrevioA4['refs/heads/main'] -eq $commitEsperadoA4 -and $estadoPrevioA4['refs/tags/a4-MajesDo63^{}'] -eq $commitEsperadoA4){
+    $publicarA4=$false
+} elseif($estadoPrevioA4['refs/heads/main'] -ne '__BASE_COMMIT__' -or $estadoPrevioA4['refs/tags/a4-MajesDo63'] -ne '__BASE_TAG__'){
+    throw 'El repositorio o la etiqueta cambiaron desde la revision anterior. Se conserva el remoto; requiere revision.'
+}
+Ejecutar-GitA4 -Argumentos @('merge-base','--is-ancestor','__BASE_COMMIT__',$commitEsperadoA4) | Out-Null
+'''.replace('__BASE_COMMIT__',base_commit).replace('__BASE_TAG__',base_tag)
+    vieja="Ejecutar-GitA4 -Argumentos @('push','--atomic','origin','main','refs/tags/a4-MajesDo63') | ForEach-Object {Write-Output $_}"
+    nueva="if($publicarA4){Ejecutar-GitA4 -Argumentos @('push','--atomic','--force-with-lease=refs/heads/main:"+base_commit+"','--force-with-lease=refs/tags/a4-MajesDo63:"+base_tag+"','origin','main','refs/tags/a4-MajesDo63') | ForEach-Object {Write-Output $_}}"
+    script=script.replace(vieja,previo+nueva)
+    script=script.replace('PUBLICACION COMPLETA Y VERIFICADA:','ACTUALIZACION COMPLETA Y VERIFICADA:')
+    nombre_script='ACTUALIZAR_ACT4.ps1'
+(salida/nombre_script).write_text(script,encoding="utf-8-sig")
 registro={"repositorio":"https://github.com/MajesDo63/Act4-Cesar","commit":commit,"etiqueta":"a4-MajesDo63",
           "zip":zip_path.name,"bytes_zip":zip_path.stat().st_size,"sha256_zip":hashlib.sha256(zip_path.read_bytes()).hexdigest(),
-          "publicado":False,"script_publicacion":"PUBLICAR_ACT4.ps1"}
+          "publicado":False,"script_publicacion":nombre_script}
 (salida/"preparacion_entrega.json").write_text(json.dumps(registro,ensure_ascii=False,indent=2),encoding="utf-8")
 print("PAQUETE PREPARADO: "+str(zip_path))
-print("PUBLICACION PREPARADA: "+str(salida/"PUBLICAR_ACT4.ps1"))
+print("PUBLICACION PREPARADA: "+str(salida/nombre_script))
 print("REVISION: "+commit)

@@ -1,0 +1,195 @@
+{
+  "metodo": "Inspeccion estatica del codigo y las politicas SEC con asistencia de ChatGPT; anotacion posterior a la ronda original, no ciega ni exhaustiva. No se usa Ruff para definir los hallazgos esperados.",
+  "referencia_sha256": "02f2c784dbcb0edd619525515d79130f3b84e1b0c24a2226a6f50329bce39f8c",
+  "ronda_original": "bitacora\\a4\\evaluacion_20261126T221709Z",
+  "nueva_consulta_gemini": false,
+  "resultados": [
+    {
+      "version": "v1",
+      "archivo": "usuarios.py",
+      "referencia_problemas": 4,
+      "detectados": 3,
+      "omisiones_cobertura": 1,
+      "ids_detectados": [
+        "U01",
+        "U02",
+        "U03"
+      ],
+      "ids_omitidos": [
+        "U04"
+      ],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [
+        "inconsistencia_de_contrato"
+      ],
+      "contrato_aprobado": false,
+      "terminado": false
+    },
+    {
+      "version": "v1",
+      "archivo": "limites.py",
+      "referencia_problemas": 0,
+      "detectados": 0,
+      "omisiones_cobertura": 0,
+      "ids_detectados": [],
+      "ids_omitidos": [],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [
+        "inconsistencia_de_contrato"
+      ],
+      "contrato_aprobado": false,
+      "terminado": false
+    },
+    {
+      "version": "v1",
+      "archivo": "tokens.py",
+      "referencia_problemas": 2,
+      "detectados": 0,
+      "omisiones_cobertura": 2,
+      "ids_detectados": [],
+      "ids_omitidos": [
+        "T01",
+        "T02"
+      ],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [
+        "inconsistencia_de_contrato"
+      ],
+      "contrato_aprobado": false,
+      "terminado": false
+    },
+    {
+      "version": "v1",
+      "archivo": "reportes.py",
+      "referencia_problemas": 3,
+      "detectados": 0,
+      "omisiones_cobertura": 3,
+      "ids_detectados": [],
+      "ids_omitidos": [
+        "R01",
+        "R02",
+        "R03"
+      ],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [
+        "inconsistencia_de_contrato"
+      ],
+      "contrato_aprobado": false,
+      "terminado": false
+    },
+    {
+      "version": "v1",
+      "archivo": "transferencias.py",
+      "referencia_problemas": 5,
+      "detectados": 2,
+      "omisiones_cobertura": 3,
+      "ids_detectados": [
+        "F02",
+        "F04"
+      ],
+      "ids_omitidos": [
+        "F01",
+        "F03",
+        "F05"
+      ],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [
+        "inconsistencia_de_contrato"
+      ],
+      "contrato_aprobado": false,
+      "terminado": false
+    },
+    {
+      "version": "v2",
+      "archivo": "usuarios.py",
+      "referencia_problemas": 4,
+      "detectados": 3,
+      "omisiones_cobertura": 1,
+      "ids_detectados": [
+        "U01",
+        "U02",
+        "U03"
+      ],
+      "ids_omitidos": [
+        "U04"
+      ],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [],
+      "contrato_aprobado": true,
+      "terminado": true
+    },
+    {
+      "version": "v2",
+      "archivo": "limites.py",
+      "referencia_problemas": 0,
+      "detectados": 0,
+      "omisiones_cobertura": 0,
+      "ids_detectados": [],
+      "ids_omitidos": [],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [],
+      "contrato_aprobado": true,
+      "terminado": true
+    },
+    {
+      "version": "v2",
+      "archivo": "tokens.py",
+      "referencia_problemas": 2,
+      "detectados": 1,
+      "omisiones_cobertura": 1,
+      "ids_detectados": [
+        "T01"
+      ],
+      "ids_omitidos": [
+        "T02"
+      ],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [],
+      "contrato_aprobado": true,
+      "terminado": true
+    },
+    {
+      "version": "v2",
+      "archivo": "reportes.py",
+      "referencia_problemas": 3,
+      "detectados": 2,
+      "omisiones_cobertura": 1,
+      "ids_detectados": [
+        "R01",
+        "R02"
+      ],
+      "ids_omitidos": [
+        "R03"
+      ],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [],
+      "contrato_aprobado": true,
+      "terminado": true
+    },
+    {
+      "version": "v2",
+      "archivo": "transferencias.py",
+      "referencia_problemas": 5,
+      "detectados": 2,
+      "omisiones_cobertura": 3,
+      "ids_detectados": [
+        "F02",
+        "F04"
+      ],
+      "ids_omitidos": [
+        "F01",
+        "F03",
+        "F05"
+      ],
+      "hallazgos_adicionales": 0,
+      "errores_agente": [],
+      "contrato_aprobado": true,
+      "terminado": true
+    }
+  ],
+  "causas": {
+    "inconsistencia_de_contrato": "La respuesta parafraseada incumple el contrato literal; no implica por si sola una afirmacion falsa.",
+    "omision_cobertura": "El conjunto de reglas de Ruff no reconoce este patron; no se atribuye al modelo.",
+    "limite_referencia": "Revision posterior asistida, no ciega ni exhaustiva; no permite inferir sensibilidad general."
+  }
+}

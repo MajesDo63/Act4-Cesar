@@ -1,0 +1,29 @@
+{
+  "metodo": "Inspeccion estatica del codigo y las politicas SEC con asistencia de ChatGPT; anotacion posterior a la ronda original, no ciega ni exhaustiva. No se usa Ruff para definir los hallazgos esperados.",
+  "unidad": "Problema identificado: dos problemas de la misma regla y linea conservan identidades distintas.",
+  "casos": {
+    "usuarios.py": [
+      {"id":"U01","regla":"SEC-06","linea":6,"evidencia":"hashlib.md5(password.encode())","problema":"Hash de contrasena con MD5","codigos_ruff":["S324"]},
+      {"id":"U02","regla":"SEC-06","linea":8,"evidencia":"random.randint(100000, 999999)","problema":"Codigo de un solo uso generado con random","codigos_ruff":["S311"]},
+      {"id":"U03","regla":"SEC-06","linea":14,"evidencia":"hashlib.md5(password.encode())","problema":"Verificacion mediante MD5","codigos_ruff":["S324"]},
+      {"id":"U04","regla":"SEC-06","linea":14,"evidencia":"u[\"hash\"] ==","problema":"Comparacion de secreto con igualdad ordinaria","codigos_ruff":[]}
+    ],
+    "limites.py": [],
+    "tokens.py": [
+      {"id":"T01","regla":"SEC-09","linea":6,"evidencia":"yaml.load(texto)","problema":"Carga YAML sin SafeLoader","codigos_ruff":["S506"]},
+      {"id":"T02","regla":"SEC-06","linea":10,"evidencia":"token == guardado","problema":"Comparacion de token sin compare_digest","codigos_ruff":[]}
+    ],
+    "reportes.py": [
+      {"id":"R01","regla":"SEC-09","linea":9,"evidencia":"pickle.loads(datos_bytes)","problema":"Deserializacion de entrada con pickle","codigos_ruff":["S301"]},
+      {"id":"R02","regla":"SEC-09","linea":13,"evidencia":"shell=True","problema":"Comando shell con nombre de archivo externo","codigos_ruff":["S602"]},
+      {"id":"R03","regla":"SEC-03","linea":17,"evidencia":"cliente['curp']","problema":"Registro de CURP y CLABE sin enmascarar","codigos_ruff":[]}
+    ],
+    "transferencias.py": [
+      {"id":"F01","regla":"SEC-01","linea":3,"evidencia":"API_KEY =","problema":"Secreto de ejemplo escrito en codigo","codigos_ruff":[]},
+      {"id":"F02","regla":"SEC-02","linea":8,"evidencia":"cur.execute(f\"SELECT saldo","problema":"SELECT con interpolacion de identificador externo","codigos_ruff":["S608"]},
+      {"id":"F03","regla":"SEC-07","linea":10,"evidencia":"float(monto)","problema":"Monto de dinero convertido a float","codigos_ruff":[]},
+      {"id":"F04","regla":"SEC-02","linea":11,"evidencia":"\"UPDATE cuentas SET saldo = saldo - \" +","problema":"UPDATE con concatenacion de valores externos","codigos_ruff":["S608"]},
+      {"id":"F05","regla":"SEC-03","linea":12,"evidencia":"{destino_clabe}","problema":"CLABE completa enviada a print","codigos_ruff":[]}
+    ]
+  }
+}

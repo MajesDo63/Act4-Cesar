@@ -1,0 +1,11 @@
+﻿version,archivo,referencia_problemas,detectados,omisiones_cobertura,ids_detectados,ids_omitidos,hallazgos_adicionales,errores_agente,contrato_aprobado,terminado
+v1,usuarios.py,4,3,1,"['U01', 'U02', 'U03']",['U04'],0,['inconsistencia_de_contrato'],False,False
+v1,limites.py,0,0,0,[],[],0,['inconsistencia_de_contrato'],False,False
+v1,tokens.py,2,0,2,[],"['T01', 'T02']",0,['inconsistencia_de_contrato'],False,False
+v1,reportes.py,3,0,3,[],"['R01', 'R02', 'R03']",0,['inconsistencia_de_contrato'],False,False
+v1,transferencias.py,5,2,3,"['F02', 'F04']","['F01', 'F03', 'F05']",0,['inconsistencia_de_contrato'],False,False
+v2,usuarios.py,4,3,1,"['U01', 'U02', 'U03']",['U04'],0,[],True,True
+v2,limites.py,0,0,0,[],[],0,[],True,True
+v2,tokens.py,2,1,1,['T01'],['T02'],0,[],True,True
+v2,reportes.py,3,2,1,"['R01', 'R02']",['R03'],0,[],True,True
+v2,transferencias.py,5,2,3,"['F02', 'F04']","['F01', 'F03', 'F05']",0,[],True,True

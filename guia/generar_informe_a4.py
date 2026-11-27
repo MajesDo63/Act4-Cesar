@@ -75,21 +75,29 @@ def crear_paginas(carpeta, video_url):
     etiqueta_video = f"Demo ({segundos_video // 60} min {segundos_video % 60:02d} s): "
     datos = json.loads((carpeta / "resumen.json").read_text(encoding="utf-8"))
     pruebas = json.loads((carpeta / "pruebas.json").read_text(encoding="utf-8"))
+    correccion = None
+    marcador = RAIZ / "bitacora/a4/ultima_correccion.txt"
+    if marcador.exists():
+        ruta_correccion = RAIZ / marcador.read_text(encoding="utf-8").strip()
+        correccion = json.loads((ruta_correccion / "validacion.json").read_text(encoding="utf-8"))
+        assert correccion["estado"] == "completo"
+        pruebas = {"aprobadas": correccion["aprobadas"], "omitidas": correccion["omitidas"]}
     entorno = json.loads((RAIZ / "bitacora/a4/entorno_inicial.json").read_text(encoding="utf-8"))
     por_clave = {(d["version"], d["archivo"]): d for d in datos}
-    tabla = [["Entrada", "Hallazgos v1 / v2", "Omisiones v1 / v2", "Resultado v2"]]
+    reanalisis = json.loads((RAIZ / "bitacora/a4/reanalisis/resultados.json").read_text(encoding="utf-8"))
+    independientes = {(r["version"], r["archivo"]): r for r in reanalisis["resultados"]}
+    tabla = [["Entrada", "Referencia SEC", "Detectados v1 / v2", "Omitidos v1 / v2"]]
     for archivo in ("usuarios.py", "limites.py", "tokens.py", "reportes.py", "transferencias.py"):
-        a, b = (por_clave[v, archivo]["metricas"] for v in ("v1", "v2"))
-        tabla.append([archivo, f"{a['hallazgos_detectados']} / {b['hallazgos_detectados']}",
-                      f"{a['omisiones_en_alcance']} / {b['omisiones_en_alcance']}",
-                      "Conforme" if b["correcto_en_alcance"] else "Revisar"])
+        a, b = (independientes[v, archivo] for v in ("v1", "v2"))
+        tabla.append([archivo, str(b['referencia_problemas']), f"{a['detectados']} / {b['detectados']}",
+                      f"{a['omisiones_cobertura']} / {b['omisiones_cobertura']}"])
     imagen = lambda nombre, titulo, alto=7.6: ("imagen", {"ruta": RAIZ / "evidencias/capturas" / nombre, "titulo": titulo, "alto": alto})
     return [
       [("kicker", "LSCA2318 · ACTIVIDAD 4"), ("titulo", "Agente con herramientas y validación"),
        ("p", "Revisor de código Python para FinNorte"),
        ("p", "Cesar Eduardo Valdez Pinto · MajesDo63 · 26 de noviembre de 2026"),
        ("h", "1. Propósito y arquitectura"),
-       ("p", "Construí un agente que propone revisiones de ejemplos Python y utiliza Ruff como herramienta de análisis estático. Conservé la API autenticada de mi Actividad 3 y añadí un ejecutor propio, un validador determinista, una interfaz y una confirmación independiente para guardar informes. El modelo propone acciones en JSON; el código decide cuáles se admiten."),
+       ("p", "Construí un agente que utiliza Ruff para analizar ejemplos Python. La interfaz unificada app/cliente_api.py tiene dos modos: Mi variante envía código al endpoint /v1/revisor de mi A3; Agente llama a /v1/agente y muestra herramientas, fuentes, validación y confirmación. El modelo propone acciones en JSON y mi ejecutor decide cuáles se admiten."),
        ("diagrama", None),
        ("caption", "Figura 1. Componentes de la implementación. La confirmación de guardado vuelve a la API; el modelo no autoriza sus propios efectos."),
        ("tabla", [["Componente", "Responsabilidad"], ["Streamlit", "Acceso, carga, errores, hallazgos, fuentes, bitácora y decisión."],
@@ -112,24 +120,28 @@ def crear_paginas(carpeta, video_url):
        ("p", "El ejecutor limita los pasos a seis en la API, detecta acciones repetidas, rechaza herramientas desconocidas y registra resultados fallidos. Una acción sensible con decisión False o None no se ejecuta. El guardado vuelve a verificar la huella del archivo y utiliza únicamente los argumentos vistos en la confirmación."),
        ("p", "Alcance: estas reglas no cubren todas las políticas SEC. Por ejemplo, no detectan el control de propiedad ausente en cuentas_api.py ni todos los datos sensibles de los logs. Cero hallazgos se interpreta dentro del alcance configurado.")],
       [("h", "3. Pruebas y entorno de ejecución"),
-       ("p", f"Ejecuté la suite actual en Windows 11 con Python 3.14.7: {pruebas['aprobadas']} pruebas aprobadas y {pruebas['omitidas']} omitidas. La ronda automatizada terminó en 11.20 s; la ejecución manual de la captura volvió a aprobar las 109 pruebas en 10.40 s. Se conserva una advertencia de obsolescencia de Starlette/AnyIO, sin pruebas fallidas."),
+       ("p", f"La suite corregida aprobó {pruebas['aprobadas']} pruebas y omitió {pruebas['omitidas']} en Windows 11 con Python 3.14.7. Añadí cinco pruebas de interacción de Streamlit y seis del reanálisis. La captura original conserva el resultado previo de 109 pruebas; el registro de la corrección contiene la suite actual completa. La advertencia de Starlette/AnyIO no produjo fallos."),
        ("tabla", [["Grupo", "Qué comprobé"], ["Oficiales y ejecutor", "Tres casos del kit, esquemas, herramientas desconocidas, máximo de pasos, repeticiones y fallo controlado."],
                   ["Ruff y validador", "Reglas reales, límites de rutas y tamaño, citas manipuladas, huellas y respuestas sin respaldo."],
                   ["Confirmaciones", "Rechazo, falta de decisión, otro usuario, expiración, concurrencia, cambio de archivo y no reemplazo."],
-                  ["API y base A3", "Token, entradas, rate limit, errores, ruta genérica eliminada y autenticación heredada."]]),
+                  ["API y base A3", "Token, entradas, rate limit, errores, ruta genérica eliminada y autenticación heredada."],
+                  ["Interfaz y evaluación", "Mi variante envía código y token; Agente muestra el fallo sin revisión aprobada; referencia con problemas distintos en una misma línea."]]),
        imagen("06_pruebas_powershell.png", "Figura 2. Captura original de PowerShell: 109 pruebas aprobadas en la ejecución manual.", 2.0),
-       ("p", "Ejecuté el proyecto desde C:/Users/cesar/OneDrive/Documentos/ChatGPT/Estudiar/actividad4_cesar con su intérprete .venv/Scripts/python.exe. Para repetir las pruebas: python -m pytest tests -q. Para la comparación real: guia/VALIDAR_A4.ps1. Los comandos, el intérprete, la plataforma y los resultados quedan en ejecucion.json, pruebas.json, pytest.txt y pytest.xml de la evaluación."),
+       ("p", "Ejecuté el proyecto desde C:/Users/cesar/OneDrive/Documentos/ChatGPT/Estudiar/actividad4_cesar con .venv/Scripts/python.exe. Repito las pruebas con python -m pytest tests -q. La corrección se comprueba con guia/VALIDAR_CORRECCION_A4.ps1; su validacion.json y pytest.xml registran el comando, el intérprete y las huellas actuales."),
        ("tabla", [["Dependencia", "Versión usada"], *[[k, entorno["paquetes"][k]] for k in ("fastapi", "starlette", "streamlit", "ruff", "pytest", "jsonschema")]]),
-       ("p", "Las pruebas de contratos y seguridad utilizan fake/hash y no consultan Gemini. La comparación del agente utiliza Gemini real; no mezclo ambas clases de evidencia. El manifiesto de la ronda conserva las huellas del código, las pruebas, el corpus y las entradas evaluadas.")],
-      [("h", "4. Cinco entradas, errores y dos mejoras"),
-       ("p", "Ejecuté las mismas cinco entradas una vez con v1 y otra con v2, con gemini-3.1-flash-lite y temperatura 0. Conservé los prompts, las respuestas completas y los pasos. La referencia automática es el perfil final de Ruff, no un inventario exhaustivo de vulnerabilidades."),
+       ("p", "Las pruebas usan fake/hash y HTTP simulado para la interfaz. Conservé las diez respuestas reales de Gemini de la ronda original. Verifiqué que el motor, API, prompts, corpus y entradas de esa ronda no cambiaron; probé por separado la interfaz corregida. El reanálisis no se presenta como una consulta nueva al modelo.")],
+      [("h", "4. Evaluación, causas y trazabilidad"),
+       ("p", "Comparé las mismas cinco entradas con gemini-3.1-flash-lite y temperatura 0. Después anoté 14 problemas por inspección del código y las políticas SEC, con asistencia, sin utilizar Ruff para definir la referencia. Es una revisión posterior, no ciega ni exhaustiva. Reanalicé los diez registros originales intactos."),
        ("tabla", tabla),
-       ("p", "En v1 las cinco respuestas fueron bloqueadas por incompatibilidad con el contrato exacto del resumen y las fuentes. Clasifiqué esos casos como inconsistencia; esto no demuestra por sí solo que cada explicación fuera falsa. El perfil inicial omitió un hallazgo en tokens.py y dos en reportes.py. Clasifiqué esos tres patrones como omisión dentro del alcance de la referencia."),
-       ("p", "Mejora 1: amplié las reglas del analizador. V1 selecciona S311, S324 y S608; v2 incorpora además S301, S307, S602 y S506. Con ello detecté la carga YAML insegura y los dos patrones de deserialización/comando que el perfil inicial no cubría."),
-       ("p", "Mejora 2: precisé la instrucción del agente. En v2 pedí copiar literalmente respuesta_autorizada y utilizar exactamente la lista fuentes de la herramienta. También indiqué analizar antes de proponer el guardado con la misma ruta y huella. Esto alineó la salida del modelo con el validador tradicional."),
-       ("p", "En esta ronda v2 produjo cinco respuestas conformes y cero omisiones respecto de la referencia configurada: ocho hallazgos distribuidos en cuatro archivos y cero en limites.py. No observé hallazgos adicionales respecto de esa referencia. La clasificación contempla alucinación para hallazgos adicionales, omisión para ausentes, inconsistencia para incumplir el contrato y genérico para una salida incompleta sin otra categoría."),
-       ("p", "La muestra tiene una ejecución por entrada y versión. Estos resultados no prueban estabilidad estadística ni que el sistema detecte todos los riesgos. Mantengo como límites las reglas no implementadas y el carácter conservador del resumen literal."),
-       ("p", "La trazabilidad está en a4/TRAZABILIDAD.md y a4/RESULTADOS.csv. Los JSON v1_*.json y v2_*.json enlazan cada entrada con sus prompts, respuestas, herramientas y métricas.")],
+       ("p", "Mejora 1, herramienta: al ampliar las reglas de v1 a v2 detecté tres problemas adicionales de YAML, pickle y shell; aún quedan seis sin cubrir: dos comparaciones de secretos, dos registros de datos sensibles, una llave de ejemplo en código y un monto float. Mejora 2, agente: v1 incumplió el contrato literal en cinco respuestas; al precisar resumen y fuentes, los cinco contratos v2 aprobaron. Eso no demuestra cobertura total ni que las paráfrasis de v1 fueran falsas."),
+       ("p", "No observé hallazgos adicionales ni respuestas genéricas en estos diez casos. Las pruebas negativas controladas comprueban el bloqueo de información sin respaldo, pero no se cuentan como alucinaciones observadas de Gemini. La muestra tiene una ejecución por entrada y versión."),
+       ("tabla", [["Regla / entrada", "Análisis", "Artefacto", "Hallazgo o prueba", "Validador"],
+                  ["SEC-06 usuarios", "MD5 y random", "v2_usuarios.json", "S324 L6/L14; S311 L8", "Aprobado"],
+                  ["SEC-09 tokens", "YAML inseguro", "v2_tokens.json", "S506 L6", "Aprobado"],
+                  ["SEC-09 reportes", "pickle y shell", "v2_reportes.json", "S301 L9; S602 L13", "Aprobado"],
+                  ["SEC-02 transferencias", "SQL interpolado", "v2_transferencias.json", "S608 L8/L11", "Aprobado"],
+                  ["Control limites", "Decimal y límite", "v2_limites.json", "0 esperados / 0 emitidos", "Aprobado"]]),
+       ("small", "Artefactos: bitacora/a4/evaluacion_20261126T221709Z/. La matriz completa a4/TRAZABILIDAD.md incluye los 14 problemas y el control negativo. Aprobado significa integridad de la respuesta; no significa detectar todos los problemas. Referencia: a4/referencia_revision.json. Resultados: a4/RESULTADOS_INDEPENDIENTES.csv.")],
       [("h", "5. Evidencias de revisión en la interfaz"),
        ("p", "Tomé estas capturas desde la aplicación en mi computadora después de iniciar sesión. Las imágenes originales se conservan en evidencias/capturas."),
        imagen("01_revision_usuarios.png", "Figura 3. usuarios.py: tres hallazgos SEC-06 en las líneas 6, 8 y 14, fuente del corpus y validador aprobado.", 8.0),
@@ -141,7 +153,7 @@ def crear_paginas(carpeta, video_url):
        ("p", "La confirmación pertenece al usuario autenticado, caduca en 600 segundos y tiene un solo uso. Aprobar ejecuta la función guardada, sin pedirle al modelo que vuelva a decidir los argumentos. Los cambios de huella, la repetición y el acceso de otro usuario se bloquean.")],
       [("h", "7. Fallo de herramienta, reflexión y demo"),
        imagen("05_fallo_herramienta.png", "Figura 7. Archivo inexistente: FileNotFoundError, paso fallida y ausencia de revisión final.", 8.0),
-       ("p", "Probé inexistente.py para comprobar un fallo real de lectura. El servicio detuvo la revisión, mostró la clase del error y dejó el paso en fallida. El validador aprobó únicamente el mensaje de control respaldado por el fallo; no aprobó un análisis del archivo."),
+       ("p", "Probé inexistente.py para provocar de forma controlada un FileNotFoundError. El servicio detuvo la revisión. La captura original conserva el indicador anterior; en la interfaz corregida aparece Mensaje de fallo validado · El análisis no se completó, separado del error de la herramienta. La prueba no equivale a una revisión aprobada."),
        ("p", "Aprendí que un agente necesita separar propuesta, validación y efecto. El modelo puede elegir una herramienta o redactar una respuesta incompatible con el contrato. Los esquemas, el catálogo, el validador y la confirmación conservan el control en el código. La mejora de cobertura depende de reglas concretas: un resultado sin hallazgos no basta para declarar seguro un programa."),
        ("link", etiqueta_video + video_url),
        ("p", "Grabé la demo directamente desde la interfaz, sin narración ni rótulos añadidos. Muestro la revisión, el caso limpio, el rechazo del guardado, el fallo de herramienta y la bitácora. El uso de asistentes y mis decisiones quedan en ai_log.md, y los registros reales de Gemini respaldan la comparación."),
@@ -286,6 +298,9 @@ def main():
     registro={"pdf":pdf.name,"word":word.name,"paginas_pdf":7,"borrador":args.borrador,
               "video_url":args.video_url,"evaluacion":str(carpeta.relative_to(RAIZ)),
               "sha256_pdf":hashlib.sha256(pdf.read_bytes()).hexdigest()}
+    marcador_correccion=RAIZ/'bitacora/a4/ultima_correccion.txt'
+    if marcador_correccion.exists():
+        registro['correccion']=marcador_correccion.read_text(encoding='utf-8').strip()
     (salida/"informe_estado.json").write_text(json.dumps(registro,ensure_ascii=False,indent=2),encoding="utf-8")
     print("INFORME GENERADO: "+str(pdf))
     print("WORD GENERADO: "+str(word))

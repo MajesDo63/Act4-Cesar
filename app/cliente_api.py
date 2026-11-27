@@ -1,157 +1,186 @@
-"""Interfaz del producto que consume el SERVICIO (no funciones locales).   streamlit run app/cliente_api.py
-
-Antes: en otra terminal, uvicorn api.producto:app --reload
-La URL del servicio se lee de API_URL: primero de la variable de entorno, luego del .env (por defecto http://127.0.0.1:8000).
-A4: adapta esta interfaz a tu variante (modo «Mi variante», tu herramienta y tu validador visibles).
-
-Diseño (T9): estados de espera y error visibles, fuentes desplegables, costo y latencia a la vista.
-Agente (T10): lo sensible NO se ejecuta hasta que tú lo autorizas con los datos exactos a la vista.
-"""
-from __future__ import annotations
-
+"""Interfaz de A4: todas las acciones pasan por la API autenticada."""
 import os
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from finnorte.config import config
 import requests
 import streamlit as st
 
-
-def _cargar_env(archivo: Path = Path(__file__).resolve().parents[1] / ".env") -> None:
-    """Lee el .env de la raíz del repositorio (sin sobrescribir variables ya definidas)."""
-    if archivo.exists():
-        for linea in archivo.read_text(encoding="utf-8").splitlines():
-            linea = linea.strip()
-            if linea and not linea.startswith("#") and "=" in linea:
-                clave, valor = linea.split("=", 1)
-                os.environ.setdefault(clave.strip(), valor.strip().strip('"').strip("'"))
+st.set_page_config(page_title="FinNorte | Revisor A4", page_icon="🔎", layout="wide")
+API = os.getenv("API_URL", "http://127.0.0.1:8004").rstrip("/")
+st.title("FinNorte · Revisor de código")
+st.caption("Actividad 4 · Cesar Eduardo Valdez Pinto · Análisis estático con Ruff")
 
 
-_cargar_env()
-API = os.getenv("API_URL", "http://127.0.0.1:8000")
-st.set_page_config(page_title="FinNorte · Producto", page_icon="🏦", layout="wide")
-
-
-def llamar(metodo: str, ruta: str, **kw) -> tuple[int, dict]:
-    """Llama al servicio con el token de la sesión; nunca truena la interfaz por un error de red."""
-    h = {"Authorization": f"Bearer {st.session_state['token']}"} if st.session_state.get("token") else {}
+def llamar(metodo, ruta, datos=None):
+    cabeceras = {"Authorization": "Bearer " + st.session_state.token} if st.session_state.get("token") else {}
     try:
-        r = requests.request(metodo, f"{API}{ruta}", headers=h, timeout=90, **kw)
-        return r.status_code, (r.json() if r.content else {})
-    except requests.RequestException as e:
-        return 0, {"title": "Servicio no disponible", "detail": f"¿Está corriendo uvicorn en {API}? ({type(e).__name__})"}
+        respuesta = requests.request(metodo, API + ruta, json=datos, headers=cabeceras, timeout=420)
+        cuerpo = respuesta.json()
+        if respuesta.status_code >= 400:
+            st.error(f"HTTP {respuesta.status_code}: {cuerpo.get('detail', 'No se pudo completar la solicitud')}")
+            if respuesta.status_code == 401:
+                st.session_state.pop("token", None)
+            return None
+        return cuerpo
+    except (requests.RequestException, ValueError):
+        st.error("No se pudo conectar con la API o terminó el tiempo de espera. Revisa la consola del servicio.")
+        return None
 
 
-def mostrar_error(status: int, cuerpo: dict):
-    if status == 401:
-        st.session_state.pop("token", None)
-        st.warning("Tu sesión expiró o no es válida. Vuelve a iniciar sesión.")
-    elif status == 429:
-        st.warning(f"{cuerpo.get('detail', 'Demasiadas solicitudes')}. Espera un minuto.")
-    elif status == 503:
-        st.error("El modelo (Gemini) no respondió a tiempo. Intenta de nuevo en unos segundos.")
+with st.sidebar:
+    st.header("Sesión")
+    if not st.session_state.get("token"):
+        with st.form("acceso"):
+            correo = st.text_input("Correo", placeholder="cesar@finnorte.mx")
+            clave = st.text_input("Contraseña", type="password")
+            entrar = st.form_submit_button("Iniciar sesión", use_container_width=True)
+            registrar = st.form_submit_button("Crear cuenta", use_container_width=True)
+        if entrar or registrar:
+            with st.spinner("Validando acceso…"):
+                if registrar:
+                    creado = llamar("POST", "/auth/registro", {"email": correo, "contrasena": clave})
+                    if creado:
+                        st.success("Cuenta creada. Inicia sesión con los mismos datos.")
+                else:
+                    resultado = llamar("POST", "/auth/login", {"email": correo, "contrasena": clave})
+                    if resultado:
+                        st.session_state.token = resultado["token"]
+                        st.session_state.correo = correo
+                        st.rerun()
     else:
-        st.error(f"{cuerpo.get('title', 'Error')}: {cuerpo.get('detail', '')}")
-    if cuerpo.get("trace_id"):
-        st.caption(f"trace_id: {cuerpo['trace_id']}")
-
-
-# ───────────────────────────── barra lateral: sesión ─────────────────────────────
-s, salud = llamar("GET", "/salud")
-st.sidebar.markdown(f"**Servicio:** {API}  \n" + (f"**Modelo:** {salud.get('llm')}  \n**Variante:** {salud.get('variante')}"
-                                                  if s == 200 else "🔴 sin conexión"))
-if not st.session_state.get("token"):
-    st.sidebar.subheader("Iniciar sesión")
-    email = st.sidebar.text_input("Correo")
-    contrasena = st.sidebar.text_input("Contraseña", type="password")
-    c1, c2 = st.sidebar.columns(2)
-    if c1.button("Entrar", use_container_width=True):
-        st_, cuerpo = llamar("POST", "/auth/login", json={"email": email, "contrasena": contrasena})
-        if st_ == 200:
-            st.session_state["token"] = cuerpo["token"]
+        st.success("Sesión autenticada")
+        st.caption(st.session_state.get("correo", ""))
+        if st.button("Cerrar sesión"):
+            for clave_estado in ("token", "correo", "resultado", "decision"):
+                st.session_state.pop(clave_estado, None)
             st.rerun()
-        else:
-            mostrar_error(st_, cuerpo)
-    if c2.button("Registrarme", use_container_width=True):
-        st_, cuerpo = llamar("POST", "/auth/registro", json={"email": email, "contrasena": contrasena})
-        st.sidebar.success("Cuenta creada; ahora entra.") if st_ == 201 else mostrar_error(st_, cuerpo)
-    st.title("🏦 FinNorte · Producto")
-    st.info("Inicia sesión para usar el asistente. Tu token dura 15 minutos.")
+    st.divider()
+    st.write("El código revisado se analiza sin ejecutarlo.")
+    st.caption("Los informes se guardan únicamente tras aprobar los argumentos mostrados.")
+
+if not st.session_state.get("token"):
+    st.info("Crea una cuenta e inicia sesión en el panel izquierdo para revisar un ejemplo.")
     st.stop()
 
-if st.sidebar.button("Cerrar sesión"):
-    st.session_state.clear()
-    st.rerun()
-modo = st.sidebar.radio("Modo", ["Preguntar (caso guía)", "Mi variante", "Agente"])
-st.sidebar.caption("Ficticio · uso educativo · LSCA2318")
-
-# ───────────────────────────── modos ─────────────────────────────
-if modo.startswith("Preguntar"):
-    st.title("📘 Manual de Ingeniería")
-    st.caption("Respondo solo con el manual y cito la fuente. Si no está en el manual, te lo digo.")
-    pregunta = st.text_input("Tu pregunta", placeholder="¿Cada cuánto se rotan los secretos de producción?", max_chars=500)
-    if st.button("Preguntar", type="primary", disabled=len(pregunta.strip()) < 3):
-        with st.spinner("Buscando en el manual y consultando a Gemini…"):
-            st_, out = llamar("POST", "/v1/preguntas", json={"pregunta": pregunta})
-        if st_ != 200:
-            mostrar_error(st_, out)
+modo = st.sidebar.radio("Modo", ("Agente", "Mi variante"))
+if modo == "Mi variante":
+    st.subheader("Mi variante · revisión de código")
+    st.caption("Flujo de revisión de la A3: detectar, explicar, proponer parche y emitir dictamen.")
+    codigo = st.text_area("Código Python a revisar", height=230, max_chars=20000, key="codigo_variante")
+    if st.button("Ejecutar mi variante", type="primary", disabled=not codigo.strip()):
+        with st.spinner("El motor está revisando el código y comprobando sus referencias…"):
+            revision = llamar("POST", "/v1/revisor", {"codigo": codigo})
+        if revision is not None:
+            st.session_state.revision_variante = revision
+    revision = st.session_state.get("revision_variante")
+    if revision:
+        st.write(revision["respuesta"])
+        errores = revision.get("errores_citas", [])
+        if errores:
+            st.error("Validador de revisión: referencias con problemas")
+            st.write(errores)
+        elif revision.get("abstuvo"):
+            st.warning("Revisión detenida o fuera de alcance; no hay un dictamen aprobado.")
         else:
-            (st.warning if out["abstuvo"] else st.success)(out["respuesta"])
-            if out["fuentes"]:
-                with st.expander(f"Fuentes ({len(out['fuentes'])})"):
-                    st.write(out["fuentes"])
-            st.caption(f"⏱ {out['latencia_ms']:.0f} ms · 💲 US${out['costo_usd']:.5f}")
+            st.success("Validador de revisión: aprobado · Controles del flujo y citas verificadas")
+        with st.expander("Fuentes de mi variante", expanded=True):
+            st.write(revision.get("fuentes", []))
+        with st.expander("Artefacto y resultado de validación", expanded=True):
+            st.json({"artefacto": revision.get("artefacto", {}),
+                     "validacion": {"ok": not errores and not revision.get("abstuvo"),
+                                    "errores_citas": errores, "abstuvo": revision.get("abstuvo", False)}})
+        st.caption(f"Latencia: {revision.get('latencia_ms', 0):.0f} ms · Costo estimado: US${revision.get('costo_usd', 0):.5f}")
+    st.stop()
 
-elif modo == "Mi variante":
-    st.title(f"🧩 Mi variante · {salud.get('variante', '')}")
-    texto = st.text_area("Código Python a revisar", height=200, max_chars=20000)
-    if st.button("Ejecutar", type="primary", disabled=not texto.strip()):
-        with st.spinner("Recuperando contexto, corriendo el flujo y validando…"):
-            st_, out = llamar("POST", "/v1/revisor", json={"codigo": texto})
-        if st_ != 200:
-            mostrar_error(st_, out)
-        else:
-            (st.warning if out.get("abstuvo") else st.success)(out.get("respuesta", ""))
-            if out.get("fuentes"):
-                with st.expander("Fuentes"):
-                    st.write(out["fuentes"])
-            if out.get("artefacto"):
-                with st.expander("Artefacto estructurado"):
-                    st.json(out["artefacto"])
-            if out.get("errores_citas"):
-                st.error(f"Citas con problema: {out['errores_citas']}")
+ejemplos = ("usuarios.py", "limites.py", "tokens.py", "reportes.py", "cuentas_api.py", "comisiones.py",
+            "transferencias.py", "notificador.py")
+elegido = st.selectbox("Ejemplo de código", ejemplos)
+izquierda, derecha = st.columns([2, 1])
+with izquierda:
+    revisar = st.button("Revisar ejemplo", type="primary", use_container_width=True)
+with derecha:
+    preparar = st.button("Revisar y preparar informe", use_container_width=True)
+nombre = st.text_input("Nombre del informe si decides guardarlo", value="revision_cesar.json",
+                       help="Solo letras, números, guion y extensión .json. No se reemplazan informes existentes.")
+with st.expander("Ver código de entrada"):
+    archivo = Path(__file__).resolve().parents[1] / "datos" / "v2-revisor" / "codigo" / elegido
+    st.code(archivo.read_text(encoding="utf-8"), language="python", line_numbers=True)
 
-else:
-    st.title("🤖 Agente con confirmación humana")
-    st.caption("El agente consulta el manual y las ventanas de despliegue. Crear un ticket requiere TU autorización.")
-    tarea = st.text_area("Tarea", "Quiero desplegar un cambio de riesgo alto en pagos-api el 2026-11-24. ¿Se puede? Si sí, crea el ticket.")
-    if st.button("Ejecutar agente", type="primary"):
-        with st.spinner("El agente está trabajando (cada paso es una llamada a Gemini)…"):
-            st_, out = llamar("POST", "/v1/agente", json={"tarea": tarea})
-        if st_ != 200:
-            mostrar_error(st_, out)
+with st.expander("Comprobar un fallo de herramienta"):
+    st.write("Solicita un ejemplo inexistente para verificar que el servicio detiene la revisión y muestra el error.")
+    fallo = st.button("Probar archivo inexistente")
+
+if revisar or preparar or fallo:
+    tarea = f"Revisa {elegido} con correr_linter."
+    if preparar:
+        tarea += f" Después propone guardar_informe con el nombre {nombre}."
+    if fallo:
+        tarea = "Llama correr_linter con ruta inexistente.py. Necesito comprobar el fallo del archivo inexistente."
+    st.session_state.pop("decision", None)
+    with st.spinner("El agente está revisando la entrada. Espera a que termine…"):
+        salida = llamar("POST", "/v1/agente", {"tarea": tarea})
+        if salida is not None:
+            st.session_state.resultado = salida
+
+salida = st.session_state.get("resultado")
+if salida:
+    st.subheader("Resultado")
+    st.write(salida["respuesta"])
+    validacion = salida["validador"]
+    fallo_de_herramienta = any(p["estado"] == "fallida" for p in salida["pasos"])
+    if fallo_de_herramienta and validacion["ok"]:
+        st.info("Mensaje de fallo validado · El análisis no se completó")
+    elif validacion["ok"]:
+        st.success("Validador: aprobado · Referencias y respuesta dentro del alcance comprobado")
+    else:
+        st.error("Validador: bloqueado")
+        for mensaje in validacion["hallazgos"]:
+            st.write("• " + mensaje)
+    for paso in salida["pasos"]:
+        if paso["estado"] == "fallida":
+            st.error(f"Herramienta fallida: {paso['herramienta']} · {paso['resultado']['clase']} · Sin revisión final")
+        if paso["herramienta"] == "correr_linter" and paso["estado"] == "ejecutada":
+            analisis = paso["resultado"]
+            st.metric("Hallazgos de Ruff", len(analisis["hallazgos"]))
+            if analisis["hallazgos"]:
+                st.dataframe(analisis["hallazgos"], hide_index=True, use_container_width=True)
+            else:
+                st.info("Cero hallazgos en las reglas configuradas. No equivale a una auditoría completa.")
+            with st.expander("Fuentes del corpus y huella de entrada", expanded=True):
+                st.caption("SHA-256: " + analisis["huella"])
+                for identificador, regla in analisis["reglas_citadas"].items():
+                    st.write(f"**{identificador}** · {regla['fuente']}")
+                    st.write(regla["texto"])
+    with st.expander("Bitácora del agente", expanded=True):
+        st.dataframe([{"Paso": p["n"], "Herramienta": p["herramienta"] or "respuesta",
+                       "Estado": p["estado"], "Argumentos": str(p["argumentos"] or {})} for p in salida["pasos"]],
+                     hide_index=True, use_container_width=True)
+    if not st.session_state.get("decision"):
+        for pendiente in salida.get("pendientes", []):
+            st.warning("Informe pendiente: todavía no se ha creado ningún archivo.")
+            st.json({"herramienta": pendiente["herramienta"], "argumentos": pendiente["argumentos"]})
+            st.caption(f"La autorización caduca en {pendiente['expira_en_s']} segundos y tiene un solo uso.")
+            aprobar_col, rechazar_col = st.columns(2)
+            aprobar = aprobar_col.button("Aprobar y guardar", key="aprobar_" + pendiente["id"])
+            rechazar = rechazar_col.button("Rechazar · no guardar", key="rechazar_" + pendiente["id"])
+            if aprobar or rechazar:
+                with st.spinner("Aplicando tu decisión…"):
+                    decision = llamar("POST", "/v1/agente/confirmar/" + pendiente["id"], {"aprobar": aprobar})
+                if decision:
+                    st.session_state.decision = decision
+                    st.rerun()
+    if st.session_state.get("decision"):
+        decision = st.session_state.decision
+        if decision["estado"] == "rechazada":
+            st.success("Acción rechazada · No se guardó ningún informe · Efecto: False")
+        elif decision["estado"] == "ejecutada":
+            st.success("Informe guardado con los argumentos aprobados.")
         else:
-            st.session_state["agente"] = out
-    out = st.session_state.get("agente")
-    if out:
-        (st.success if out["terminado"] else st.error)(out["respuesta"])
-        v = out["validador"]
-        (st.success if v["ok"] else st.error)("Validador: OK" if v["ok"] else "Validador: " + " · ".join(v["hallazgos"]))
-        for p in out["pasos"]:
-            with st.expander(f"Paso {p['n']} · {p['accion']} {p['herramienta'] or ''} · {p['estado']}"):
-                st.json(p)
-        for p in out["pendientes"]:
-            st.warning(f"**Acción pendiente:** `{p['herramienta']}`")
-            st.json(p["argumentos"])                         # los datos EXACTOS que se van a ejecutar
-            c1, c2 = st.columns(2)
-            for col, aprobar, etiqueta in ((c1, True, "✅ Autorizar"), (c2, False, "⛔ Rechazar")):
-                if col.button(etiqueta, key=f"{p['id']}-{aprobar}", use_container_width=True):
-                    st_, r = llamar("POST", f"/v1/agente/confirmar/{p['id']}", json={"aprobar": aprobar})
-                    if st_ != 200:
-                        mostrar_error(st_, r)
-                    else:
-                        st.session_state["agente"]["pendientes"] = []
-                        st.session_state["ultimo"] = r
-                        st.rerun()
-        if st.session_state.get("ultimo"):
-            r = st.session_state["ultimo"]
-            (st.success if r["estado"] == "ejecutada" else st.info)(f"Acción {r['estado']}: {r.get('resultado', r.get('argumentos'))}")
+            st.error("La acción no se ejecutó: " + decision["estado"])
+        st.json(decision)
+
+st.divider()
+st.caption("Ruff detecta patrones concretos. El validador comprueba referencias y respaldo; la revisión tiene un alcance limitado.")

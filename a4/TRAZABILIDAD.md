@@ -1,24 +1,21 @@
-# Matriz de trazabilidad
+# Regla → analisis → artefacto → hallazgo → validador
 
-| Requisito de A4 | Implementación | Prueba o registro |
-|---|---|---|
-| Herramienta propia `correr_linter(ruta)` | `herramientas_revisor.py`, Ruff sin ejecutar código. | `test_a4_linter_validador.py`; resultados de cinco entradas. |
-| Catálogo y JSON Schema | `Herramienta`, esquemas cerrados para ruta y guardado. | Tipos, campos extra, ruta absoluta, traversal y opciones de comando. |
-| Ejecutor propio | `herramientas.ejecutar_agente`. | Las tres pruebas oficiales y `test_a4_ejecutor.py`. |
-| Confirmación obligatoria | `agente_servicio.iniciar` devuelve una acción pendiente. | False, None, entero y cadena no ejecutan efectos. |
-| Rechazo sin efecto | `resolver(..., aprobar=False)`. | Prueba de directorio ausente; captura de rechazo desde la interfaz. |
-| Mismos argumentos aprobados | Copia de argumentos y función ligada a la solicitud; revisión de la huella. | Mutación del retorno, cambio del archivo y confirmación concurrente. |
-| Usuario, vigencia y un solo uso | Pendiente con propietario y TTL de 600 s. | Otro usuario, expiración y segunda confirmación. |
-| Límite de pasos y repeticiones | Máximo configurable de 1 a 8; API usa 6. | Herramienta desconocida y acción repetida. |
-| Fallo de herramienta | Archivo inexistente; estado fallida sin revisión final. | Prueba HTTP y captura de `FileNotFoundError`. |
-| Validador tradicional | SEC y fuente existentes, línea, evidencia, huella y respuesta autorizada. | Manipulación de regla, línea, evidencia, fuente, resumen y huella. |
-| `limites.py` sin hallazgos | Control negativo en cada versión. | Ruff real y API; captura de cero hallazgos. |
-| Interfaz sobre API con token | Streamlit llama `/auth/*` y `/v1/agente*`. | Pruebas HTTP de token, entrada y confirmación; uso manual en navegador. |
-| Fuentes, carga y errores visibles | Interfaz con spinner, fuentes, validador y tabla de pasos. | Capturas originales y demo. |
-| Cinco entradas, dos rondas | usuarios, limites, tokens, reportes y transferencias. | Archivos v1/v2, prompts y respuestas en la evaluación. |
-| Dos mejoras | Ampliación de reglas; contrato explícito del resumen y fuentes. | Mismos cinco archivos, métricas y huellas. |
-| Clasificación de errores | Alucinación, omisión, inconsistencia y genérico dentro del alcance definido. | `metricas` por entrada; lectura crítica en el informe. |
-| Bitácora de IA | `ai_log.md`. | Decisiones aceptadas, modificadas y rechazadas; registros reales de Gemini. |
-| Entrega | PDF de 5–7 páginas, repositorio con etiqueta `a4-MajesDo63` y demo de dos minutos. | Se comprueban al cerrar la entrega; crear los archivos no equivale a verificar la publicación. |
+Referencia por inspeccion del codigo y las politicas; elaborada despues de la ronda original. Los registros originales no se modifican.
 
-La referencia automática de la comparación es Ruff con el perfil v2. No se presenta como un inventario exhaustivo de todas las vulnerabilidades del corpus. Los riesgos fuera de esas reglas permanecen como limitaciones de cobertura.
+| Regla / entrada | Analisis | Artefacto | Hallazgo / deteccion | Validador |
+|---|---|---|---|---|
+| SEC-06 / usuarios.py | Hash de contrasena con MD5 | bitacora/a4/evaluacion_20261126T221709Z/v2_usuarios.json | U01 linea 6 · Detectado | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-06 / usuarios.py | Codigo de un solo uso generado con random | bitacora/a4/evaluacion_20261126T221709Z/v2_usuarios.json | U02 linea 8 · Detectado | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-06 / usuarios.py | Verificacion mediante MD5 | bitacora/a4/evaluacion_20261126T221709Z/v2_usuarios.json | U03 linea 14 · Detectado | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-06 / usuarios.py | Comparacion de secreto con igualdad ordinaria | bitacora/a4/evaluacion_20261126T221709Z/v2_usuarios.json | U04 linea 14 · Omitido por cobertura de herramienta | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| Control negativo / limites.py | Decimal y validacion del monto | bitacora/a4/evaluacion_20261126T221709Z/v2_limites.json | 0 hallazgos esperados y emitidos · Conforme | Aprobado |
+| SEC-09 / tokens.py | Carga YAML sin SafeLoader | bitacora/a4/evaluacion_20261126T221709Z/v2_tokens.json | T01 linea 6 · Detectado | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-06 / tokens.py | Comparacion de token sin compare_digest | bitacora/a4/evaluacion_20261126T221709Z/v2_tokens.json | T02 linea 10 · Omitido por cobertura de herramienta | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-09 / reportes.py | Deserializacion de entrada con pickle | bitacora/a4/evaluacion_20261126T221709Z/v2_reportes.json | R01 linea 9 · Detectado | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-09 / reportes.py | Comando shell con nombre de archivo externo | bitacora/a4/evaluacion_20261126T221709Z/v2_reportes.json | R02 linea 13 · Detectado | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-03 / reportes.py | Registro de CURP y CLABE sin enmascarar | bitacora/a4/evaluacion_20261126T221709Z/v2_reportes.json | R03 linea 17 · Omitido por cobertura de herramienta | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-01 / transferencias.py | Secreto de ejemplo escrito en codigo | bitacora/a4/evaluacion_20261126T221709Z/v2_transferencias.json | F01 linea 3 · Omitido por cobertura de herramienta | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-02 / transferencias.py | SELECT con interpolacion de identificador externo | bitacora/a4/evaluacion_20261126T221709Z/v2_transferencias.json | F02 linea 8 · Detectado | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-07 / transferencias.py | Monto de dinero convertido a float | bitacora/a4/evaluacion_20261126T221709Z/v2_transferencias.json | F03 linea 10 · Omitido por cobertura de herramienta | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-02 / transferencias.py | UPDATE con concatenacion de valores externos | bitacora/a4/evaluacion_20261126T221709Z/v2_transferencias.json | F04 linea 11 · Detectado | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
+| SEC-03 / transferencias.py | CLABE completa enviada a print | bitacora/a4/evaluacion_20261126T221709Z/v2_transferencias.json | F05 linea 12 · Omitido por cobertura de herramienta | Aprobado para la respuesta emitida; no mide cobertura exhaustiva |
