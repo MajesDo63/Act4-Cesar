@@ -1,39 +1,37 @@
-# Registro de uso de IA · Actividad 4
+# Registro de uso de IA — Actividad 4
 
-**Alumno:** Cesar Eduardo Valdez Pinto · **Usuario:** MajesDo63
+**Cesar Eduardo Valdez Pinto — MajesDo63**
 
-Utilicé ChatGPT para preparar la implementación, las pruebas y la documentación de A4. Utilicé Gemini como modelo del agente durante la comparación y la interfaz. Distingo la asistencia para desarrollar el proyecto de las respuestas del modelo que mi aplicación debe controlar.
+Utilicé ChatGPT como apoyo para preparar el código, las pruebas y la documentación. Integré Gemini como modelo del agente y conservé los prompts y sus respuestas durante la evaluación. En esta bitácora registro las decisiones del proyecto.
 
-| Solicitud o propuesta | Decisión | Aplicación y verificación |
+| Propuesta o decisión de diseño | Decisión | Cómo quedó en el proyecto |
 |---|---|---|
-| Continuar desde la API autenticada de A3 en un repositorio independiente. | Aceptada. | Conservé la base de autenticación e incorporé el agente propio. La procedencia se registra con el commit y las huellas. |
-| Usar Ruff para analizar código Python sin ejecutarlo. | Aceptada con controles. | Catálogo de ejemplos, entrada por stdin, argumentos fijos, `shell=False`, tiempo y tamaño máximos. |
-| Permitir rutas libres o ejecutar comandos propuestos por el modelo. | Rechazada como alternativa de diseño. | La herramienta no admite rutas arbitrarias, opciones adicionales ni ejecución del código revisado. |
-| Resumir libremente la salida de las herramientas. | Modificada. | La versión inicial permite observar la incompatibilidad con el validador. En v2 solicité copiar el resumen autorizado y las fuentes exactas. Las respuestas reales se conservan en la evaluación. |
-| Limitar el análisis a criptografía y SQL. | Modificada. | En v2 añadí reglas para pickle, YAML, eval y `shell=True`. Comparé las mismas cinco entradas. |
-| Guardar el informe cuando lo sugiera el modelo. | Modificada. | Separé propuesta y confirmación. El guardado exige un análisis previo y la misma huella; solo se ejecuta tras aprobar los argumentos exactos. |
-| Preparar evidencias visuales a partir de registros. | Rechazada para esta entrega. | Las capturas y la grabación se toman manualmente desde las ventanas de la aplicación y PowerShell. Los JSON y XML se conservan como registros, no como sustitutos de capturas. |
+| Continuar desde mi API autenticada de A3. | Aceptada. | Conservé la autenticación e incorporé el agente en un repositorio independiente. Registré el commit de origen y las huellas. |
+| Analizar Python con Ruff. | Aceptada con controles. | Limité los ejemplos al catálogo, envié el contenido por stdin y fijé los argumentos, el tiempo y el tamaño máximo. |
+| Admitir rutas libres o comandos elegidos por el modelo. | Rechazada. | Elegí nombres del catálogo y argumentos cerrados. El agente analiza el código sin ejecutarlo. |
+| Permitir un resumen libre de los resultados. | Modificada. | En v1 observé respuestas incompatibles con el validador. En v2 precisé la copia del resumen autorizado y de sus fuentes. |
+| Revisar únicamente criptografía y SQL. | Modificada. | Amplié el perfil con reglas para pickle, YAML, eval y `shell=True`. Comparé las mismas cinco entradas. |
+| Guardar el informe al recibir la propuesta del modelo. | Modificada. | Separé la propuesta de la confirmación. Exigí un análisis previo, la misma huella y la aprobación de los argumentos exactos. |
+| Usar imágenes generadas a partir de los registros como capturas. | Rechazada para la entrega. | Tomé las capturas y grabé la demo en mi computadora. Conservé aparte los JSON y XML de las ejecuciones. |
 
-## Comprobaciones y cambios
+## Ajustes durante el desarrollo
 
-- Las tres pruebas oficiales de A4 se conservaron como `tests/test_a4_oficial.py`. Una pieza sin implementar se considera un fallo; no se oculta como prueba omitida.
-- La primera ronda local detectó una expectativa incorrecta: se esperaba S608 en `cuentas_api.py`, que contiene un problema de autorización y no una consulta SQL. Corregí la expectativa y usé `transferencias.py` como caso SQL. No atribuí a Ruff una cobertura que no tiene.
-- El último paso del instalador inicial falló por el paso de comillas entre PowerShell y Python. Lo sustituí por `guia/comprobar_entorno.py`; las dependencias instaladas se conservaron.
-- Las pruebas distinguen proveedor `fake` para contratos y seguridad de las llamadas reales a Gemini para la comparación del agente.
-- Las respuestas íntegras de Gemini, sus prompts, metadatos y resultados por caso se guardan en `bitacora/a4/evaluacion_*/`. La comparación conserva fallos y no reemplaza respuestas reales por resultados simulados.
+Conservé las tres pruebas oficiales en `tests/test_a4_oficial.py` y añadí casos del ejecutor, las herramientas, el validador y las confirmaciones. En la primera ronda corregí una expectativa de prueba: `cuentas_api.py` tiene un problema de autorización, por lo que usé `transferencias.py` para comprobar S608 y la construcción de SQL.
 
-## Qué reviso antes de entregar
+También corregí el paso de comillas entre PowerShell y Python en el instalador. Pasé la comprobación del entorno a `guia/comprobar_entorno.py` y conservé las dependencias ya instaladas.
 
-Compruebo el resultado de las pruebas, las diferencias entre v1 y v2, mis capturas, la demo y el destino del repositorio. Mantengo explícitas las limitaciones de las reglas estáticas y del validador. Las credenciales y las bases de datos locales no forman parte de la entrega.
+Utilicé `fake` para comprobar contratos y controles de seguridad, y Gemini para comparar el comportamiento del agente. Guardé sus diez respuestas completas, prompts y metadatos en `bitacora/a4/evaluacion_20261126T221709Z/`.
 
-## Capturas y grabación
+## Revisión de resultados
 
-Tomé las seis capturas originales en mi computadora: revisión de usuarios.py, caso limites.py, confirmación pendiente, rechazo, archivo inexistente y pytest. Se conservaron sus bytes y huellas. No incluí la imagen del acceso con la contraseña visible.
+Con apoyo de ChatGPT revisé los ejemplos y las políticas SEC para anotar 14 problemas sin tomar la salida de Ruff como referencia. Preparé esta lista después de la ronda original; por eso la comparación no es ciega ni exhaustiva.
 
-Grabé la interfaz sin narración. Elegí utilizar mi propia grabación, sin rótulos ni presentación añadidos. Conservé el archivo original y mostré los pasos directamente en la aplicación.
+Reanalicé las respuestas guardadas: v1 detectó cinco problemas y v2 detectó ocho. Separé las seis omisiones de cobertura de v2 de los errores del contrato de respuesta. Después armé la matriz regla → análisis → artefacto → hallazgo → validador.
 
-## Corrección de interfaz, trazabilidad y evaluación
+Integré **Mi variante** y **Agente** en `app/cliente_api.py`, distinguí el mensaje de fallo de una revisión aprobada y añadí pruebas de interacción de Streamlit. La suite final aprobó **120 pruebas, sin casos omitidos**.
 
-Integré Mi variante y Agente en `app/cliente_api.py`: el primer modo utiliza el endpoint de la A3 y el segundo las herramientas de la A4. El mensaje de control de un fallo se distingue de una revisión aprobada. Añadí pruebas de interacción de Streamlit con HTTP simulado.
+## Capturas, video y documentación
 
-Con asistencia de ChatGPT revisé el código y el corpus para anotar 14 problemas, independientemente de ejecutar Ruff. La referencia se elaboró después de la ronda original y no es ciega ni exhaustiva. Reanalicé las diez respuestas reales guardadas: el perfil final detecta ocho problemas y deja seis sin cubrir. Separé estas omisiones de las inconsistencias del contrato de respuesta y construí la matriz regla → análisis → artefacto → hallazgo → validador. La grabación y las seis capturas originales se conservaron.
+Tomé las seis capturas desde mi computadora y grabé la interfaz. Conservé los archivos originales y sus huellas. Elegí compartir el video completo, sin narración ni rótulos añadidos, mediante una copia comprimida.
+
+Para la versión final del informe utilicé apoyo de ChatGPT en la redacción y la organización. Mantuve los resultados medidos, las fuentes y las limitaciones del análisis. Las credenciales y las bases de datos locales quedaron fuera de la entrega.

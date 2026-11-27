@@ -1,27 +1,27 @@
-# Actividad 4 · Cesar Eduardo Valdez Pinto
+# Actividad 4 — Cesar Eduardo Valdez Pinto
 
-Implementé un agente para revisar ejemplos Python de FinNorte con Ruff y una interfaz sobre la API autenticada de la Actividad 3. El modelo propone acciones; el ejecutor comprueba el catálogo y los argumentos antes de llamar a una herramienta. El código analizado nunca se ejecuta.
+Desarrollé un agente para revisar ejemplos de código Python de FinNorte con Ruff. Retomé la API autenticada de mi Actividad 3 e integré dos modos en la interfaz: **Mi variante** y **Agente**. El modelo propone las acciones y el ejecutor comprueba los argumentos antes de usar cada herramienta.
 
-Repositorio de esta actividad: https://github.com/MajesDo63/Act4-Cesar
+Repositorio: https://github.com/MajesDo63/Act4-Cesar
 
-## Qué contiene
+## Organización del proyecto
 
 | Parte | Archivo principal | Función |
 |---|---|---|
-| Ejecutor propio | `src/finnorte/herramientas.py` | Protocolo JSON, validación, máximo de pasos y detección de repeticiones. |
-| Herramientas | `src/finnorte/herramientas_revisor.py` | `correr_linter` y `guardar_informe`. |
-| Validador | `src/finnorte/validador_a4.py` | SEC, fuente, línea, evidencia, huella y respuesta respaldada. |
-| Confirmaciones | `src/finnorte/agente_servicio.py` | Acción exacta, usuario, vigencia, rechazo y un solo uso. |
-| API | `api/producto.py` | Token de A3, errores `problem+json` y endpoints del agente. |
-| Interfaz | `app/cliente_api.py` | Modos Mi variante y Agente; acceso, fuentes, validación y confirmación. |
-| Evaluación | `guia/evaluar_a4.py` | Las mismas cinco entradas en v1 y v2; conserva prompts y respuestas reales. |
-| Evidencias | `bitacora/a4/` y `evidencias/` | Registros de ejecución y archivos originales de las capturas y demo. |
+| Ejecutor | `src/finnorte/herramientas.py` | Valida el JSON, limita los pasos y detecta acciones repetidas. |
+| Herramientas | `src/finnorte/herramientas_revisor.py` | Analiza con `correr_linter` y permite `guardar_informe`. |
+| Validador | `src/finnorte/validador_a4.py` | Comprueba reglas SEC, fuentes, líneas, evidencias y huellas. |
+| Confirmaciones | `src/finnorte/agente_servicio.py` | Controla los argumentos, el usuario, la vigencia y el uso único. |
+| API | `api/producto.py` | Autentica las solicitudes y expone los endpoints. |
+| Interfaz | `app/cliente_api.py` | Presenta los dos modos, los resultados y la decisión de guardado. |
+| Evaluación | `guia/evaluar_a4.py` | Compara las mismas cinco entradas con v1 y v2. |
+| Evidencias | `bitacora/a4/` y `evidencias/` | Conserva las ejecuciones, las capturas y la demo. |
 
-La base proviene de mi entrega A3 en `MajesDo63/Act3`, commit `e80daefcce32d31af562c7ac5c65f998d409009f`. Los cambios de A4 están separados de esa entrega. Las funciones del caso guía que permanecen en la base son material de referencia; el endpoint `/v1/agente` usa mi ejecutor y mis herramientas, no el ejecutor de referencia.
+Partí de mi entrega A3 en `MajesDo63/Act3`, commit `e80daefcce32d31af562c7ac5c65f998d409009f`. Implementé el agente de A4 en este repositorio; `/v1/agente` utiliza mi ejecutor y mis herramientas. El código del caso guía queda como referencia del curso.
 
-## Ejecutar en Windows
+## Instalación y ejecución
 
-En mi computadora el entorno se encuentra en `.venv`. Para instalar desde otra copia, creo un entorno Python 3.12 o superior e instalo el proyecto:
+En Windows preparo el entorno con Python 3.12 o superior:
 
 ```powershell
 python -m venv .venv
@@ -29,64 +29,59 @@ python -m venv .venv
 & '.\.venv\Scripts\python.exe' -m pip install -e .
 ```
 
-Copio `.env.example` como `.env`, configuro mi llave de Gemini y un `TOKEN_SECRET` aleatorio de al menos 32 caracteres. Las credenciales permanecen en mi equipo y están excluidas de Git. El proyecto no necesita AWS.
+Copio `.env.example` como `.env` y configuro mi llave de Gemini y un `TOKEN_SECRET` aleatorio de al menos 32 caracteres. Guardo las credenciales únicamente en mi equipo. Para esta actividad utilizo Gemini y servicios locales; no necesito AWS.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File '.\guia\VALIDAR_A4.ps1'
 powershell -NoProfile -ExecutionPolicy Bypass -File '.\guia\ABRIR_A4.ps1'
 ```
 
-La interfaz se abre en **http://127.0.0.1:8504** y la documentación de la API en **http://127.0.0.1:8004/docs**. Creo una cuenta de prueba e inicio sesión en la interfaz. El token se conserva en la sesión y no se muestra.
+Accedo a la interfaz en **http://127.0.0.1:8504** y a Swagger en **http://127.0.0.1:8004/docs**. Creo una cuenta de prueba e inicio sesión. El token permanece en la sesión.
 
-En el selector lateral, **Mi variante** envía el código a `/v1/revisor`, el endpoint de la A3, y muestra el artefacto, las fuentes y los controles del flujo. **Agente** envía la tarea a `/v1/agente` y presenta las herramientas y la confirmación del informe. `interfaz_a4.py` conserva una entrada compatible hacia esta misma interfaz.
+En **Mi variante**, envío código a `/v1/revisor` y consulto el artefacto, las fuentes y la validación del flujo de A3. En **Agente**, selecciono un ejemplo para `/v1/agente` y consulto los hallazgos, las herramientas y la confirmación del informe. `app/interfaz_a4.py` también abre esta misma interfaz.
 
-Si el proveedor interrumpe la evaluación, conservo los resultados terminados y reanudo con:
+Si Gemini interrumpe una ronda, reanudo los casos pendientes con:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File '.\guia\VALIDAR_A4.ps1' -Continuar
 ```
 
-La reanudación verifica las huellas del código. Si cambio el código, inicio una ronda nueva.
+La reanudación verifica las huellas del código. Cuando modifico el código evaluado, inicio una ronda nueva.
 
-Para validar la corrección de la interfaz y reanalizar la ronda original con la referencia del código:
+## Pruebas y resultados
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File '.\guia\VALIDAR_CORRECCION_A4.ps1'
-```
-
-Esta comprobación conserva los diez registros originales de Gemini. Comprueba que el motor, la API, los prompts, el corpus y las entradas de esa ronda mantienen sus bytes; valida por separado la interfaz corregida y las pruebas nuevas. La referencia anotada es posterior a la ronda: no se presenta como una evaluación ciega.
-
-Para ejecutar solo las pruebas, sin consultar Gemini:
+La suite actual tiene **120 pruebas aprobadas y ninguna omitida**. Para ejecutarla sin consultar Gemini uso:
 
 ```powershell
 & '.\.venv\Scripts\python.exe' -m pytest tests -q
 ```
 
-Para cerrar los servicios locales uso `guia/CERRAR_A4.ps1`.
+Para comprobar los dos modos de la interfaz y repetir el análisis de los registros guardados:
 
-## Alcance y límites
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File '.\guia\VALIDAR_CORRECCION_A4.ps1'
+```
 
-Ruff se invoca con argumentos fijos, `shell=False`, `--isolated`, sin caché ni `--fix`, con el contenido por stdin y un límite de diez segundos. Solo se admiten los nombres del catálogo: no hay rutas libres ni lectura de `.env` mediante el agente.
+Conservé las diez respuestas de Gemini de la ronda original y comprobé las huellas del motor, la API, los prompts, el corpus y las entradas. Después revisé el código y las políticas SEC para anotar 14 problemas: v1 detectó 5 y v2 detectó 8. La referencia se elaboró después de la ronda, por lo que esta comparación no es ciega. En `a4/TRAZABILIDAD.md` relaciono cada regla con su análisis, artefacto, hallazgo y resultado del validador.
 
-La versión final utiliza S311, S324, S608, S301, S307, S602 y S506. Las relacioné con SEC-02, SEC-06 y SEC-09 del corpus. No cubren todas las políticas SEC: por ejemplo, `cuentas_api.py` requiere una revisión de autorización que estas reglas no realizan. Cero hallazgos significa cero coincidencias dentro de este alcance.
+## Controles y alcance
 
-El validador comprueba referencias y exige que la respuesta coincida con el resumen autorizado por la herramienta. No es una demostración semántica de seguridad ni sustituye una auditoría. Un archivo inexistente produce un paso fallido y detiene la revisión.
+Configuré Ruff con argumentos fijos, `shell=False`, `--isolated`, sin caché ni `--fix`, con entrada por stdin y un tiempo máximo de diez segundos. El agente acepta únicamente los nombres del catálogo y analiza el contenido sin ejecutarlo.
 
-La inspección del código y las políticas documenta 14 problemas en las cinco entradas: v1 detecta 5 y v2 detecta 8. Los seis restantes son límites de cobertura de Ruff, aunque el contrato de las cinco respuestas v2 apruebe. La matriz `a4/TRAZABILIDAD.md` enlaza regla, análisis, artefacto, hallazgo y validador. Los resultados independientes están en `a4/RESULTADOS_INDEPENDIENTES.csv`; los registros automáticos originales permanecen intactos.
+Relacioné S311 y S324 con SEC-06, S608 con SEC-02, y S301, S307, S602 y S506 con SEC-09. Estas reglas cubren los patrones descritos en `a4/RESULTADOS.md`. Quedan seis problemas de la referencia fuera de su cobertura; interpreto un resultado de cero hallazgos dentro de ese alcance.
 
-`guardar_informe` es sensible: requiere que esa misma solicitud haya analizado la misma ruta y huella. Antes de guardar se verifica otra vez la huella. La confirmación dura diez minutos, pertenece al usuario y se consume una sola vez. Rechazarla no crea el informe ni su directorio. Aprobarla permite crear un archivo nuevo; nunca reemplaza uno existente.
+El validador comprueba las referencias y la coincidencia con el resumen autorizado. Así controlo la integridad de la respuesta, aunque la herramienta puede omitir riesgos que no cubren sus reglas. Cuando falla una herramienta, el servicio registra el error y detiene la revisión.
 
-## Capturas y demo
+Para guardar un informe exijo un análisis previo de la misma ruta y huella. La confirmación pertenece al usuario, dura diez minutos y tiene un solo uso. Al rechazarla no se crea el informe ni su directorio. Al aprobarla vuelvo a comprobar la huella y creo un archivo nuevo, sin reemplazar archivos existentes.
 
-Sigo la secuencia de `guia/MIS_CAPTURAS_Y_DEMO.md`. Las capturas se toman desde la ventana real del navegador y PowerShell. La guía distingue las ejecuciones automáticas de las acciones que realizo en la interfaz.
+Para cerrar los servicios locales ejecuto `guia/CERRAR_A4.ps1`.
 
-Las fuentes y decisiones sobre el uso de asistentes se registran en `ai_log.md`.
-
-## Entregables
+## Entrega
 
 - [Informe PDF, siete páginas](entrega/Actividad4_Cesar_Informe.pdf).
 - [Documento editable](entrega/Actividad4_Cesar_Informe.docx).
-- [Demo de la actividad · 2 min 13 s](https://github.com/MajesDo63/Act4-Cesar/raw/refs/tags/a4-MajesDo63/evidencias/demo/Actividad4_Cesar.mp4).
-- [Resultados de la comparación](a4/RESULTADOS.md) y [matriz de trazabilidad](a4/TRAZABILIDAD.md).
+- [Demo, 2 min 13 s](https://github.com/MajesDo63/Act4-Cesar/raw/refs/tags/a4-MajesDo63/evidencias/demo/Actividad4_Cesar.mp4).
+- [Resultados](a4/RESULTADOS.md) y [matriz de trazabilidad](a4/TRAZABILIDAD.md).
+- [Registro de uso de IA](ai_log.md).
 
-La demo es mi grabación de la interfaz, sin narración, rótulos ni presentación añadidos. Conservé el archivo original en su ubicación local. La duración y la huella de la copia de entrega se registran en `evidencias/demo/video_verificado.json`.
+Tomé seis capturas en mi computadora y grabé la demostración desde la interfaz. En `guia/MIS_CAPTURAS_Y_DEMO.md` describo las acciones que mostré. Conservé el video completo, sin narración ni rótulos añadidos, y preparé una copia comprimida para compartirlo.

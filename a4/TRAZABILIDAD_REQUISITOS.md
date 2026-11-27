@@ -1,4 +1,6 @@
-# Matriz de trazabilidad
+# Requisitos y comprobaciones
+
+En esta tabla relaciono los requisitos de la actividad con los archivos que preparé y las pruebas que ejecuté.
 
 | Requisito de A4 | Implementación | Prueba o registro |
 |---|---|---|
@@ -19,6 +21,6 @@
 | Dos mejoras | Ampliación de reglas; contrato explícito del resumen y fuentes. | Mismos cinco archivos, métricas y huellas. |
 | Clasificación de errores | Alucinación, omisión, inconsistencia y genérico dentro del alcance definido. | `metricas` por entrada; lectura crítica en el informe. |
 | Bitácora de IA | `ai_log.md`. | Decisiones aceptadas, modificadas y rechazadas; registros reales de Gemini. |
-| Entrega | PDF de 5–7 páginas, repositorio con etiqueta `a4-MajesDo63` y demo de dos minutos. | Se comprueban al cerrar la entrega; crear los archivos no equivale a verificar la publicación. |
+| Entrega | PDF de 5–7 páginas, repositorio con etiqueta `a4-MajesDo63` y demo de dos minutos. | Informe de siete páginas, etiqueta de entrega y grabación de 2 min 13 s. |
 
-La referencia automática de la comparación es Ruff con el perfil v2. No se presenta como un inventario exhaustivo de todas las vulnerabilidades del corpus. Los riesgos fuera de esas reglas permanecen como limitaciones de cobertura.
+Comparé las cinco entradas con v1 y v2 y después anoté 14 problemas mediante la revisión del código y las políticas SEC. En `TRAZABILIDAD.md` detallé los ocho problemas detectados por v2, las seis omisiones de cobertura y el control sin hallazgos.

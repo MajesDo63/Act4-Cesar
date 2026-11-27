@@ -1,8 +1,8 @@
-# Resultados y causas de la evaluacion
+# Resultados de mi evaluación
 
-Suite corregida: **120 aprobadas; 0 omitidas**. La captura original corresponde a la suite previa de 109 casos.
+La suite final aprobó **120 pruebas y no omitió ninguna**. Tomé la captura de PowerShell durante la ejecución inicial de 109 casos.
 
-La referencia por inspeccion del codigo y corpus documenta 14 problemas. Se elaboro despues de la ronda de Gemini; no es ciega ni exhaustiva. No se usa la salida de Ruff para definir los problemas esperados.
+Revisé el código y las políticas del corpus para anotar 14 problemas. Preparé esta referencia después de la ronda de Gemini, sin basarme en la salida de Ruff. Por ese orden de trabajo, la comparación no es ciega; la lista tampoco cubre todos los posibles riesgos.
 
 | Version | Entrada | Problemas de referencia | Detectados | Omitidos por cobertura | Contrato de respuesta |
 |---|---|---:|---:|---:|---|
@@ -17,15 +17,15 @@ La referencia por inspeccion del codigo y corpus documenta 14 problemas. Se elab
 | v2 | reportes.py | 3 | 2 | 1 | Aprobado |
 | v2 | transferencias.py | 5 | 2 | 3 | Aprobado |
 
-## Separacion de causas
+## Qué cambió entre las versiones
 
-- Herramienta: v1 detecta 5 de los 14 problemas anotados; v2 detecta 8. Las seis omisiones restantes de v2 son dos comparaciones de secretos, dos registros sensibles, la llave sintetica escrita en codigo y el uso de float para dinero.
-- Agente: las cinco respuestas v1 incumplieron el contrato literal; las cinco v2 lo cumplieron tras precisar las instrucciones. Esto mide conformidad del formato y las fuentes; no demuestra razonamiento general ni convierte cada parafrasis v1 en falsa.
-- No se observaron hallazgos adicionales ni respuestas genericas en estos diez registros. Las pruebas negativas que inyectan datos sin respaldo comprueban el bloqueo; no se cuentan como alucinaciones reales de Gemini.
-- Las dos mejoras historicas fueron ampliar el perfil de Ruff y precisar el contrato de respuesta. La correccion posterior unifica los modos de interfaz, aclara el fallo y agrega la referencia y la matriz solicitadas.
+- Al ampliar el perfil de Ruff pasé de 5 a 8 problemas detectados. Quedaron seis sin cubrir: dos comparaciones de secretos, dos registros sensibles, una llave de ejemplo escrita en código y un monto convertido a float.
+- Ajusté las instrucciones del agente para conservar el resumen y las fuentes autorizadas. Las cinco respuestas v1 incumplieron ese contrato y las cinco v2 lo cumplieron. Evalué esa coincidencia por separado de la cobertura de seguridad; una paráfrasis puede fallar el contrato aunque su contenido sea correcto.
+- En las diez respuestas no observé hallazgos adicionales ni respuestas genéricas. Con las pruebas negativas comprobé el bloqueo de información sin respaldo; esas entradas manipuladas pertenecen a las pruebas, no a los resultados observados de Gemini.
+- Después integré los dos modos de la interfaz, aclaré el mensaje de fallo y añadí la referencia y la matriz de trazabilidad.
 
 ## Evidencias
 
-Las diez respuestas originales de Gemini se conservan en `bitacora/a4/evaluacion_20261126T221709Z/`. Sus metricas originales y `RESULTADOS.csv` comparan con el perfil final de Ruff y se mantienen como registro historico, no como cobertura completa de las politicas SEC.
-El reanalisis usa `referencia_revision.json`, `RESULTADOS_INDEPENDIENTES.csv` y `bitacora/a4/reanalisis/resultados.json`. La matriz `TRAZABILIDAD.md` liga regla, analisis, artefacto, hallazgo y validador.
-La validacion actual y las huellas de la interfaz corregida estan en `bitacora\a4\correccion_20261127T002609Z`. El motor, la API, el corpus y las cinco entradas originales mantienen sus bytes. No se realizaron consultas nuevas a Gemini.
+Guardé las diez respuestas originales de Gemini en `bitacora/a4/evaluacion_20261126T221709Z/`. Conservé sus métricas originales y `RESULTADOS.csv` como registro de la comparación con el perfil final de Ruff. Para medir los problemas de las políticas SEC utilicé la referencia anotada.
+Para el reanálisis utilicé `referencia_revision.json`, `RESULTADOS_INDEPENDIENTES.csv` y `bitacora/a4/reanalisis/resultados.json`. En `TRAZABILIDAD.md` relacioné cada regla con su análisis, artefacto, hallazgo y validador.
+Registré la validación final y las huellas de la interfaz en `bitacora\a4\correccion_20261127T002609Z`. Comprobé que el motor, la API, el corpus y las cinco entradas conservaran sus huellas. Para esta revisión reutilicé las respuestas guardadas de Gemini.
